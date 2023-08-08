@@ -2397,7 +2397,7 @@ scrape_u() { printf '[{"ID": "%s", "title": "%s", "url": "%s"}]\n' "URL-${1##*/}
 # This specific implementation of get_sort_by prints the upload date in unix time
 command_exists "get_sort_by" || get_sort_by() {
 	_video_json_line="$1"
-	date="${_video_json_line##*'"date":"'}"
+	date="${_video_json_line##*\"date\":\"}"
 	date="${date%%\"*}"
 	# youtube specific
 	date=${date#*Streamed}
