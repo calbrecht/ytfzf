@@ -2592,6 +2592,22 @@ interface_text() {
 		_fzf_start_bind="${_fzf_start_bind%"+"}"
 	fi
 
+	_fzf_pass_env=""
+	_fzf_pass_env="${_fzf_pass_env} TTY_COLS=${TTY_COLS}"
+	_fzf_pass_env="${_fzf_pass_env} TTY_LINES=${TTY_LINES}"
+	_fzf_pass_env="${_fzf_pass_env} YTFZF_CHECK_VARS_EXISTS=1"
+	_fzf_pass_env="${_fzf_pass_env} __is_fzf_preview=1"
+	_fzf_pass_env="${_fzf_pass_env} __is_submenu=${__is_submenu}"
+	_fzf_pass_env="${_fzf_pass_env} fzf_preview_side='$fzf_preview_side'"
+	_fzf_pass_env="${_fzf_pass_env} invidious_instance='$invidious_instance'"
+	_fzf_pass_env="${_fzf_pass_env} pages_to_scrape='$pages_to_scrape'"
+	_fzf_pass_env="${_fzf_pass_env} scrape='$scrape'"
+	_fzf_pass_env="${_fzf_pass_env} session_cache_dir='$session_cache_dir'"
+	_fzf_pass_env="${_fzf_pass_env} session_temp_dir='$session_temp_dir'"
+	_fzf_pass_env="${_fzf_pass_env} thumbnail_viewer='$thumbnail_viewer'"
+	_fzf_pass_env="${_fzf_pass_env} yt_video_link_domain='$yt_video_link_domain'"
+	_fzf_pass_env="${_fzf_pass_env} ytfzf_video_json_file='$ytfzf_video_json_file'"
+
 	[ "$show_thumbnails" -eq 1 ] && {
 		interface_thumbnails "$@"
 		return
@@ -2611,7 +2627,7 @@ interface_text() {
 		_post_video_info_text |
 		fzf -m --sync --tabstop=1 --layout=reverse --expect="$shortcut_binds" \
 			$_fzf_start_bind \
-			--bind "${next_page_action_shortcut}:reload(__is_fzf_preview=1 TTY_COLS=${TTY_COLS} TTY_LINES=${TTY_LINES} YTFZF_CHECK_VARS_EXISTS=1 session_cache_dir='$session_cache_dir' ytfzf_video_json_file='$ytfzf_video_json_file' invidious_instance='$invidious_instance' yt_video_link_domain='$yt_video_link_domain' pages_to_scrape='$pages_to_scrape' session_temp_dir='$session_temp_dir' $0 -W \"next_page"$EOT"{f}\")" | set_keypress |
+			--bind "${next_page_action_shortcut}:reload($_fzf_pass_env $0 -W \"next_page$EOT{f}\" |& tee /tmp/wtf)" | set_keypress |
 		trim_url >"$selected_id_file"
 
 	_const_top_url="$(head -n 1 "$selected_id_file")"
@@ -3012,9 +3028,9 @@ interface_thumbnails() {
 		jq -r '"\(.title)'"$gap_space"'\t|\(.channel)\t|\(.duration)\t|\(.views)\t|\(.date)\t|\(.viewed)\t|\(.url)"' |
 		SHELL="$(command -v sh)" fzf -m --sync \
 			--expect="$shortcut_binds" \
-			--preview "__is_fzf_preview=1 YTFZF_CHECK_VARS_EXISTS=1 session_cache_dir='$session_cache_dir' session_temp_dir='$session_temp_dir' fzf_preview_side='$fzf_preview_side' scrape='$scrape' thumbnail_viewer='$thumbnail_viewer' ytfzf_video_json_file='$ytfzf_video_json_file' $0 -W \"preview_img"$EOT"{f}\"" \
+			--preview "$_fzf_pass_env $0 -W \"preview_img${EOT}{f}\"" \
 			$_fzf_start_bind \
-			--bind "${next_page_action_shortcut}:reload(__is_fzf_preview=1 TTY_COLS=${TTY_COLS} TTY_LINES=${TTY_LINES} YTFZF_CHECK_VARS_EXISTS=1 session_cache_dir='$session_cache_dir' ytfzf_video_json_file='$ytfzf_video_json_file' invidious_instance='$invidious_instance' yt_video_link_domain='$yt_video_link_domain' pages_to_scrape='$pages_to_scrape' session_temp_dir='$session_temp_dir' $0 -W \"next_page"$EOT"{f}\")" \
+			--bind "${next_page_action_shortcut}:reload($_fzf_pass_env $0 -W \"next_page${EOT}{f}\")" \
 			--preview-window "$fzf_preview_side:50%:wrap" --layout=reverse | set_keypress |
 		trim_url >"$selected_id_file"
 
